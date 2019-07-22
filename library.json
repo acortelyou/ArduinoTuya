@@ -1,0 +1,15 @@
+{
+  "name": "ArduinoTuya",
+  "keywords": "tuya, iot, smarthome, plug",
+  "description": "Allows direct control of Tuya smart plugs from embedded/Arduino devices",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/acortelyou/ArduinoTuya.git"
+  },
+  "version": "1.0.0",
+  "authors": {
+    "name": "Alex Cortelyou"
+  },
+  "frameworks": "arduino",
+  "platforms": "*"
+}
