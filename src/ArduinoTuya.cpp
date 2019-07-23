@@ -1,22 +1,22 @@
 #include "ArduinoTuya.h"
 
-void TuyaDevice::initGetRequest(JsonObject &jsonRequest) {
+void TuyaDevice::initGetRequest(JsonDocument &jsonRequest) {
   jsonRequest["gwId"] = _id;  //device id
   jsonRequest["devId"] = _id; //device id
 }
 
-void TuyaDevice::initSetRequest(JsonObject &jsonRequest) {
+void TuyaDevice::initSetRequest(JsonDocument &jsonRequest) {
   jsonRequest["t"] = 0;       //epoch time (required but value doesn't appear to be used)
   jsonRequest["devId"] = _id; //device id
   jsonRequest.createNestedObject("dps");
   jsonRequest["uid"] = "";    //user id (required but value doesn't appear to be used)
 }
 
-String TuyaDevice::createPayload(JsonObject &jsonRequest, bool encrypt) {
+String TuyaDevice::createPayload(JsonDocument &jsonRequest, bool encrypt) {
 
   // Serialize json request
   String jsonString;
-  jsonRequest.printTo(jsonString); 
+  serializeJson(jsonRequest, jsonString);
 
   DEBUG_PRINT("REQUEST  ");
   DEBUG_PRINTLN(jsonString);
@@ -175,9 +175,9 @@ String TuyaDevice::sendCommand(String &payload, byte command) {
 
 int TuyaDevice::get() {
 
-  // Allocate json object
-  StaticJsonBuffer<512> jsonBuffer;
-  JsonObject& jsonRequest = jsonBuffer.createObject();
+  // Allocate json objects
+  StaticJsonDocument<512> jsonRequest;
+  StaticJsonDocument<512> jsonResponse;
   
   // Build request
   initGetRequest(jsonRequest);
@@ -190,24 +190,21 @@ int TuyaDevice::get() {
   if (_error != TUYA_OK) return _error;
 
   // Deserialize json response
-  JsonObject& responseJson = jsonBuffer.parseObject(response);
-  if(!responseJson.success()) return _error = TUYA_ERROR_PARSE;
+  auto error = deserializeJson(jsonResponse, response);
+  if (error) return _error = TUYA_ERROR_PARSE;
 
   // Check response
-  if(!responseJson.containsKey("dps")) return _error = TUYA_ERROR_PARSE;
-  JsonObject& dps = responseJson["dps"];
-  if(!dps.containsKey("1")) return _error = TUYA_ERROR_PARSE;
+  JsonVariant state = jsonResponse["dps"]["1"];
+  if (state.isNull()) return _error = TUYA_ERROR_PARSE;
 
-  _state = dps["1"].as<bool>() ? TUYA_ON : TUYA_OFF;
-
+  _state = state.as<bool>() ? TUYA_ON : TUYA_OFF;
   return _error = TUYA_OK;
 }
 
 int TuyaDevice::set(bool state) {
 
   // Allocate json object
-  StaticJsonBuffer<512> jsonBuffer;
-  JsonObject& jsonRequest = jsonBuffer.createObject();
+  StaticJsonDocument<512> jsonRequest;
   
   // Build request
   initSetRequest(jsonRequest);
@@ -225,6 +222,10 @@ int TuyaDevice::set(bool state) {
   _state = state;
 
   return _error = TUYA_OK;
+}
+
+int TuyaDevice::toggle() {
+  return set(!_state);
 }
 
 int TuyaBulb::setColorRGB(byte r, byte g, byte b) {
@@ -256,8 +257,7 @@ int TuyaBulb::setColorHSV(byte h, byte s, byte v) {
   sprintf(hexColor, "%02x%02x%02x", h, s, v);
 
   // Allocate json object
-  StaticJsonBuffer<512> jsonBuffer;
-  JsonObject& jsonRequest = jsonBuffer.createObject();
+  StaticJsonDocument<512> jsonRequest;
   
   // Build request
   initSetRequest(jsonRequest);
@@ -279,8 +279,7 @@ int TuyaBulb::setWhite(byte brightness, byte temp) {
   }
 
   // Allocate json object
-  StaticJsonBuffer<512> jsonBuffer;
-  JsonObject& jsonRequest = jsonBuffer.createObject();
+  StaticJsonDocument<512> jsonRequest;
   
   // Build request
   initSetRequest(jsonRequest);

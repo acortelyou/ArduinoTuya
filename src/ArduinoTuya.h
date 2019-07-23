@@ -81,9 +81,9 @@ class TuyaDevice {
     int _state = TUYA_OFF;
     int _error = TUYA_ERROR_UNINIT;
 
-    void initGetRequest(JsonObject &jsonRequest);
-    void initSetRequest(JsonObject &jsonRequest);
-    String createPayload(JsonObject &jsonRequest, bool encrypt = true);
+    void initGetRequest(JsonDocument &jsonRequest);
+    void initSetRequest(JsonDocument &jsonRequest);
+    String createPayload(JsonDocument &jsonRequest, bool encrypt = true);
     String sendCommand(String &payload, byte command);
     
   public:
@@ -102,6 +102,7 @@ class TuyaDevice {
 
     int get();
     int set(bool state);
+    int toggle();
 
 };
 
