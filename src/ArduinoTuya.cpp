@@ -173,7 +173,7 @@ String TuyaDevice::sendCommand(String &payload, byte command) {
   return String("");
 }
 
-int TuyaDevice::get() {
+tuya_error_t TuyaDevice::get() {
 
   // Allocate json objects
   StaticJsonDocument<512> jsonRequest;
@@ -201,7 +201,7 @@ int TuyaDevice::get() {
   return _error = TUYA_OK;
 }
 
-int TuyaDevice::set(bool state) {
+tuya_error_t TuyaDevice::set(bool state) {
 
   // Allocate json object
   StaticJsonDocument<512> jsonRequest;
@@ -219,16 +219,16 @@ int TuyaDevice::set(bool state) {
   if (_error != TUYA_OK) return _error;
   if (response.length() != 0) return _error = TUYA_ERROR_LENGTH;
 
-  _state = state;
+  _state = state ? TUYA_ON : TUYA_OFF;
 
   return _error = TUYA_OK;
 }
 
-int TuyaDevice::toggle() {
+tuya_error_t TuyaDevice::toggle() {
   return set(!_state);
 }
 
-int TuyaBulb::setColorRGB(byte r, byte g, byte b) {
+tuya_error_t TuyaBulb::setColorRGB(byte r, byte g, byte b) {
   //https://gist.github.com/postspectacular/2a4a8db092011c6743a7
   float R = asFloat(r);
   float G = asFloat(g);
@@ -250,7 +250,7 @@ int TuyaBulb::setColorRGB(byte r, byte g, byte b) {
   return setColorHSV(asByte(H), asByte(S), asByte(V));
 }
 
-int TuyaBulb::setColorHSV(byte h, byte s, byte v) {
+tuya_error_t TuyaBulb::setColorHSV(byte h, byte s, byte v) {
 
   // Format color as hex string
   char hexColor[7];
@@ -271,7 +271,7 @@ int TuyaBulb::setColorHSV(byte h, byte s, byte v) {
   return _error;
 }
 
-int TuyaBulb::setWhite(byte brightness, byte temp) {
+tuya_error_t TuyaBulb::setWhite(byte brightness, byte temp) {
 
   if (brightness < 25 || brightness > 255) {
     DEBUG_PRINTLN("BRIGHTNESS MUST BE BETWEEN 25 AND 255");

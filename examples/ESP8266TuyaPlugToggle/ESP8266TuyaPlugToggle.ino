@@ -1,11 +1,8 @@
 #include <ESP8266WiFiMulti.h>
+ESP8266WiFiMulti wiFiMulti;
 
-#define TUYA_DEBUG
-#include "ArduinoTuya.h"
-
-ESP8266WiFiMulti WiFiMulti;
-
-TuyaDevice plug = TuyaDevice("01200885ecfabc87b0f9", "fd351bcdb819492f", "192.168.1.159");
+#include <ArduinoTuya.h>
+TuyaDevice plug("01200885ecfabc87b0f9", "fd351bcdb819492f", "192.168.1.159");
 
 void setup() {
 
@@ -17,21 +14,20 @@ void setup() {
 
   // WiFi
   WiFi.mode(WIFI_STA);
-  WiFiMulti.addAP("WIFI", "PASSWORD");
+  wiFiMulti.addAP("WIFI", "thepasswordispassword");
   Serial.print("Waiting for connection...");
-  while (WiFiMulti.run() != WL_CONNECTED) {
+  while (wiFiMulti.run() != WL_CONNECTED) {
     Serial.print(".");
     delay(1000);
   }
   Serial.println(" ready.");
-  delay(1000);    
+  delay(1000);
 
   // Set plug state
   Serial.println();
-  int result = plug.set(false);
+  plug.set(TUYA_OFF);
   Serial.print("SET Plug: ");
-  Serial.print(plug.state() ? "ON" : "OFF");
-  printResult(result);
+  printPlugState();
   delay(5000);
 
 }
@@ -40,31 +36,28 @@ void loop() {
 
   // Get plug state
   Serial.println();
-  int result = plug.get();
+  plug.get();
   Serial.print("GET Plug: ");
-  Serial.print(plug.state() ? "ON" : "OFF");
-  printResult(result);
+  printPlugState();
   delay(5000);
   
   // Toggle plug state
   Serial.println();
-  result = plug.toggle();
+  plug.toggle();
   Serial.print("SET Plug: ");
-  Serial.print(plug.state() ? "ON" : "OFF");
-  printResult(result);
+  printPlugState();
   delay(5000);
 
 }
 
-void printResult(int result) {
-  switch (result) {
-    case TUYA_OK:
-      Serial.println(" (OK)");
-      break;
-    default:
-      Serial.print(" (ERROR ");
-      Serial.print(result);
-      Serial.println(")");
-      break;
+
+void printPlugState() {
+  auto error = plug.error();
+  if (!error) {
+    Serial.print(plug.state() ? "ON" : "OFF");
+    Serial.println(" (OK)");
+  } else {
+    Serial.print("ERROR ");
+    Serial.println(error);
   }
 }
