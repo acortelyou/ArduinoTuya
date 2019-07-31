@@ -1,3 +1,7 @@
+// ArduinoTuya
+// Copyright Alex Cortelyou 2018
+// MIT License
+
 #ifndef TUYA_H
 #define TUYA_H
 

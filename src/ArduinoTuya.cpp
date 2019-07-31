@@ -1,3 +1,7 @@
+// ArduinoTuya
+// Copyright Alex Cortelyou 2018
+// MIT License
+
 #include "ArduinoTuya.h"
 
 void TuyaDevice::initGetRequest(JsonDocument &jsonRequest) {
