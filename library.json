@@ -6,10 +6,20 @@
     "type": "git",
     "url": "https://github.com/acortelyou/ArduinoTuya.git"
   },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "authors": {
     "name": "Alex Cortelyou"
   },
   "frameworks": "arduino",
-  "platforms": "*"
+  "platforms": "*",
+  "dependencies": [
+    {
+      "name": "tiny-AES-c",
+      "owner": "kokke"
+    },
+    {
+      "name": "ArduinoJson",
+      "owner": "bblanchon"
+    }
+  ]
 }
